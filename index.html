@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Acompanhamento e Gestão FOB</title>
+    
+    <!-- Tailwind CSS v3 Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js DataLabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    
+    <!-- SheetJS (xlsx) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+        }
+        
+        /* Barra de rolagem personalizada */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Contentores, Cartões e Secções */
+        .bg-white {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+
+        .bg-slate-50 {
+            background-color: #0f172a !important;
+        }
+
+        .bg-slate-100,
+        .bg-slate-100\/80 {
+            background-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+
+        .border-slate-200,
+        .border-slate-200\/80,
+        .border-slate-200\/70,
+        .border-slate-300,
+        .border-slate-100 {
+            border-color: #334155 !important;
+        }
+
+        /* Cores de texto */
+        .text-slate-900,
+        .text-slate-800,
+        .text-slate-700 {
+            color: #f8fafc !important;
+        }
+
+        .text-slate-600,
+        .text-slate-500,
+        .text-slate-400 {
+            color: #cbd5e1 !important;
+        }
+
+        /* Títulos de Secção */
+        #fobSectionTitle {
+            color: #f8fafc !important;
+        }
+        #fobSectionSub {
+            color: #94a3b8 !important;
+        }
+
+        /* Cores de texto dos cartões CNPJ */
+        .cnpj-card-label {
+            color: #cbd5e1 !important;
+        }
+        .cnpj-card-val {
+            color: #ffffff !important;
+        }
+        .cnpj-card-val-green {
+            color: #4ade80 !important;
+        }
+        .cnpj-card-val-brand {
+            color: #38bdf8 !important;
+        }
+
+        /* Inputs e Selects */
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: #475569 !important;
+        }
+
+        select option {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+        }
+
+        /* Tabelas */
+        table thead tr {
+            background-color: #334155 !important;
+            color: #cbd5e1 !important;
+            border-color: #475569 !important;
+        }
+
+        table tbody tr {
+            border-color: #334155 !important;
+        }
+
+        table tbody tr:hover {
+            background-color: #334155 !important;
+        }
+
+        .hover\:bg-slate-50\/80:hover {
+            background-color: #334155 !important;
+        }
+
+        .hover\:bg-slate-100:hover {
+            background-color: #475569 !important;
+        }
+
+        /* Modais */
+        #modalEntry .bg-white,
+        #modalImport .bg-white {
+            background-color: #1e293b !important;
+            border: 1px solid #334155;
+        }
+
+        #importStep1 .border-dashed {
+            border-color: #475569 !important;
+            background-color: #0f172a !important;
+        }
+
+        #importStep2 .bg-slate-50 {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+        }
+
+        /* Toasts */
+        #toastNotification {
+            background-color: #1e293b !important;
+            border-color: #475569 !important;
+            color: #f8fafc !important;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: #fff !important; color: #000 !important; }
+            .shadow-sm, .shadow-md, .shadow-lg { box-shadow: none !important; }
+            .border { border-color: #ccc !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased min-h-screen flex flex-col">
+
+    <!-- Cabeçalho -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30 no-print border-b border-slate-800">
+        <div class="max-w-[98%] mx-auto px-2 sm:px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-brand-500 rounded-lg text-white font-bold">
+                    <i class="fa-solid fa-truck-ramp-box text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Gestão & Acompanhamento FOB</h1>
+                    <p class="text-xs text-slate-400">Controle Operacional Terceiros MEI & Análise CNPJ</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button onclick="openModal('modalImport')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-2 border border-slate-700">
+                    <i class="fa-solid fa-file-import text-brand-500"></i>
+                    <span class="hidden sm:inline">Importar Planilha</span>
+                </button>
+                <button onclick="openModal('modalEntry')" class="bg-brand-600 hover:bg-brand-500 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Novo Registro</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-[98%] w-full mx-auto px-2 sm:px-4 py-4 space-y-4">
+
+        <!-- Barra de Ações Rápidas e Status -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 no-print">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">Status</span>
+                <span id="recordCountBadge" class="text-xs font-medium text-slate-600">0 registros carregados</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-file-excel"></i> Exportar Excel
+                </button>
+                <button onclick="exportReportPrint()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-print"></i> Relatório / PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtros de Pesquisa -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 no-print">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                <h2 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-filter text-brand-600"></i> Filtros de Pesquisa
+                </h2>
+                <button onclick="clearFilters()" class="text-xs text-brand-600 hover:text-brand-800 font-medium transition flex items-center gap-1">
+                    <i class="fa-solid fa-eraser"></i> Limpar Filtros
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div class="relative">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Região (Multi-Seleção)</label>
+                    <button type="button" onclick="toggleDropdown('dropdownRegionMenu')" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2.5 text-left flex justify-between items-center font-medium">
+                        <span id="labelRegion" class="truncate">Todas as Regiões</span>
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-1"></i>
+                    </button>
+                    <div id="dropdownRegionMenu" class="hidden absolute z-50 left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2 space-y-2">
+                        <input type="text" placeholder="Pesquisar Região..." oninput="filterDropdownList('searchRegion', 'listRegion')" id="searchRegion" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded p-1.5 focus:outline-none">
+                        <div id="listRegion" class="max-h-40 overflow-y-auto custom-scrollbar space-y-1"></div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">PEL (Multi-Seleção)</label>
+                    <button type="button" onclick="toggleDropdown('dropdownPelMenu')" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2.5 text-left flex justify-between items-center font-medium">
+                        <span id="labelPel" class="truncate">Todos os PELs</span>
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-1"></i>
+                    </button>
+                    <div id="dropdownPelMenu" class="hidden absolute z-50 left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2 space-y-2">
+                        <input type="text" placeholder="Pesquisar PEL..." oninput="filterDropdownList('searchPel', 'listPel')" id="searchPel" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded p-1.5 focus:outline-none">
+                        <div id="listPel" class="max-h-40 overflow-y-auto custom-scrollbar space-y-1"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Data Inicial</label>
+                    <input type="date" id="filterStartDate" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 focus:ring-brand-500 focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Data Final</label>
+                    <input type="date" id="filterEndDate" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 focus:ring-brand-500 focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Busca Geral</label>
+                    <div class="relative">
+                        <input type="text" id="filterSearch" oninput="applyFilters()" placeholder="Buscar PEL, Região..." class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2.5 pl-8 focus:ring-brand-500 focus:border-brand-500">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-3 text-slate-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cartões KPI -->
+        <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between border-l-4 border-l-emerald-500">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-sack-dollar text-emerald-600"></i> Total a Pagar
+                </span>
+                <div class="mt-2">
+                    <p id="kpiTotalPaid" class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 leading-tight">R$ 0,00</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Pagamento Terceiros MEI</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between border-l-4 border-l-blue-500">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-weight-hanging text-blue-600"></i> Peso Total
+                </span>
+                <div class="mt-2">
+                    <p id="kpiTotalWeight" class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 leading-tight">0 Kg</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Peso bruto expedido</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between border-l-4 border-l-indigo-500">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-boxes-stacked text-indigo-600"></i> Total Volumes
+                </span>
+                <div class="mt-2">
+                    <p id="kpiTotalVolumes" class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 leading-tight">0</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Unidades movimentadas</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between border-l-4 border-l-amber-500">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-truck-fast text-amber-600"></i> Entregas
+                </span>
+                <div class="mt-2">
+                    <p id="kpiTotalDeliveries" class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 leading-tight">0</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Operações registradas</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between border-l-4 border-l-teal-500">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-box text-teal-600"></i> R$ / Volume
+                </span>
+                <div class="mt-2">
+                    <p id="kpiCostPerVol" class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 leading-tight">R$ 0,00</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Custo médio unitário</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between border-l-4 border-l-purple-500">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-scale-balanced text-purple-600"></i> R$ / Kg
+                </span>
+                <div class="mt-2">
+                    <p id="kpiCostPerKg" class="text-base sm:text-lg lg:text-xl font-bold text-slate-900 leading-tight">R$ 0,00</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Custo médio p/ Kg</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Secção de Gráficos -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 no-print">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 flex flex-col">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-brand-600"></i> Valor Pago aos MEIs por Região (R$)
+                </h3>
+                <div class="relative flex-1 min-h-[260px]">
+                    <canvas id="chartPaidByRegion"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 flex flex-col">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-column text-blue-600"></i> Peso Expedido por Região (Kg)
+                </h3>
+                <div class="relative flex-1 min-h-[260px]">
+                    <canvas id="chartWeightByRegion"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 flex flex-col">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-bar text-indigo-600"></i> Quantidade de Volumes por Região
+                </h3>
+                <div class="relative flex-1 min-h-[260px]">
+                    <canvas id="chartVolumesByRegion"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 flex flex-col">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-emerald-600"></i> Evolução Temporal
+                    </h3>
+                    <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-700">
+                        <button id="btnEvolWeight" onclick="setEvolutionMetric('weight')" class="px-2 py-1 text-[10px] font-semibold rounded bg-emerald-600 text-white transition">
+                            Peso (Kg)
+                        </button>
+                        <button id="btnEvolVolumes" onclick="setEvolutionMetric('volumes')" class="px-2 py-1 text-[10px] font-semibold rounded text-slate-400 hover:text-white transition">
+                            Volumes
+                        </button>
+                        <button id="btnEvolPaid" onclick="setEvolutionMetric('paid')" class="px-2 py-1 text-[10px] font-semibold rounded text-slate-400 hover:text-white transition">
+                            Valor Pago (R$)
+                        </button>
+                    </div>
+                </div>
+                <div class="relative flex-1 min-h-[260px]">
+                    <canvas id="chartEvolution"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabela de Dados -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <h2 id="fobSectionTitle" class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-brand-600"></i> Acompanhamento das Operações FOB
+                    </h2>
+                    <p id="fobSectionSub" class="text-xs text-slate-500 mt-0.5">Listagem detalhada das expedições e entregas registradas</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <div class="relative w-full sm:w-44">
+                        <button type="button" onclick="toggleDropdown('dropdownTableRegionMenu')" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 text-left flex justify-between items-center font-medium">
+                            <span id="labelTableRegion" class="truncate">Região (Todas)</span>
+                            <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-1"></i>
+                        </button>
+                        <div id="dropdownTableRegionMenu" class="hidden absolute z-50 left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2 space-y-2">
+                            <input type="text" placeholder="Pesquisar..." oninput="filterDropdownList('searchTableRegion', 'listTableRegion')" id="searchTableRegion" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded p-1.5 focus:outline-none">
+                            <div id="listTableRegion" class="max-h-40 overflow-y-auto custom-scrollbar space-y-1"></div>
+                        </div>
+                    </div>
+
+                    <div class="relative w-full sm:w-44">
+                        <button type="button" onclick="toggleDropdown('dropdownTablePelMenu')" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg p-2 text-left flex justify-between items-center font-medium">
+                            <span id="labelTablePel" class="truncate">PEL (Todos)</span>
+                            <i class="fa-solid fa-chevron-down text-slate-400 text-xs ml-1"></i>
+                        </button>
+                        <div id="dropdownTablePelMenu" class="hidden absolute z-50 left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-2 space-y-2">
+                            <input type="text" placeholder="Pesquisar..." oninput="filterDropdownList('searchTablePel', 'listTablePel')" id="searchTablePel" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded p-1.5 focus:outline-none">
+                            <div id="listTablePel" class="max-h-40 overflow-y-auto custom-scrollbar space-y-1"></div>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-slate-500 font-medium ml-auto md:ml-2">
+                        Exibindo <span id="tableCount" class="font-bold text-slate-800">0</span> registro(s)
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-100/80 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-3">Status</th>
+                            <th class="p-3">Modal</th>
+                            <th class="p-3">Região</th>
+                            <th class="p-3">PEL</th>
+                            <th class="p-3">Operadora</th>
+                            <th class="p-3">Cód. Rastreio</th>
+                            <th class="p-3">Data Coleta</th>
+                            <th class="p-3">Data Envio</th>
+                            <th class="p-3 text-right">Equip/PEL</th>
+                            <th class="p-3 text-right">Peso (Kg)</th>
+                            <th class="p-3 text-right">Qntd Vol</th>
+                            <th class="p-3 text-right">Valor (R$)</th>
+                            <th class="p-3 text-right">Custo / Kg</th>
+                            <th class="p-3 text-center no-print">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="divide-y divide-slate-200/70 text-slate-700 font-medium whitespace-nowrap"></tbody>
+                </table>
+            </div>
+
+            <div id="paginationControls" class="p-4 border-t border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 no-print">
+                <div id="paginationInfo">Mostrando 0 até 0 de 0 registros</div>
+                <div class="flex items-center gap-2">
+                    <button id="btnPrevPage" onclick="changePage(-1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium border border-slate-700">
+                        <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
+                    </button>
+                    <span id="pageIndicator" class="font-semibold text-slate-200 px-2">Página 1 de 1</span>
+                    <button id="btnNextPage" onclick="changePage(1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium border border-slate-700">
+                        Próximo <i class="fa-solid fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="emptyTableMessage" class="hidden p-8 text-center">
+                <div class="inline-flex p-3 bg-slate-100 rounded-full text-slate-400 mb-2">
+                    <i class="fa-solid fa-folder-open text-2xl"></i>
+                </div>
+                <p class="text-sm font-semibold text-slate-600">Nenhum registro encontrado</p>
+                <p class="text-xs text-slate-400 mt-1">Ajuste os filtros ou insira novos dados para visualizar a tabela.</p>
+            </div>
+        </section>
+
+        <!-- Módulo Estratégico CNPJ -->
+        <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-brand-900 text-white rounded-xl shadow-lg p-6 space-y-6 border border-slate-700">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700 pb-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-brand-500/20 text-brand-300 border border-brand-500/30 px-3 py-1 rounded-full text-xs font-semibold mb-2">
+                        <i class="fa-solid fa-building-flag"></i> Módulo Estratégico
+                    </div>
+                    <h2 class="text-xl font-bold tracking-tight">Consolidado</h2>
+                    <p class="text-xs text-slate-300 mt-1 max-w-3xl">
+                        Estatísticas consolidadas e médias operacionais baseadas nas entregas atuais para instruir solicitações formais de proposta comercial com empresas de transporte.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 no-print">
+                    <button onclick="copyQuotationSummary()" class="bg-brand-500 hover:bg-brand-400 text-white px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-copy"></i> Copiar Resumo p/ Email
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                <div class="bg-slate-800/90 backdrop-blur p-3 rounded-lg flex flex-col justify-between border border-slate-700">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 cnpj-card-label">Peso Total</span>
+                    <p id="cnpjTotalWeight" class="text-sm font-extrabold text-slate-100 mt-1 cnpj-card-val">0 Kg</p>
+                </div>
+                <div class="bg-slate-800/90 backdrop-blur p-3 rounded-lg flex flex-col justify-between border border-slate-700">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 cnpj-card-label">Total Volumes</span>
+                    <p id="cnpjTotalVolumes" class="text-sm font-extrabold text-slate-100 mt-1 cnpj-card-val">0</p>
+                </div>
+                <div class="bg-slate-800/90 backdrop-blur p-3 rounded-lg flex flex-col justify-between border border-slate-700">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 cnpj-card-label">Gasto Atual MEI</span>
+                    <p id="cnpjTotalPaid" class="text-sm font-extrabold text-emerald-400 mt-1 cnpj-card-val-green">R$ 0,00</p>
+                </div>
+                <div class="bg-slate-800/90 backdrop-blur p-3 rounded-lg flex flex-col justify-between border border-slate-700">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 cnpj-card-label">Peso Médio/Envio</span>
+                    <p id="cnpjAvgWeightPerShipment" class="text-sm font-extrabold text-slate-100 mt-1 cnpj-card-val">0 Kg</p>
+                </div>
+                <div class="bg-slate-800/90 backdrop-blur p-3 rounded-lg flex flex-col justify-between border border-slate-700">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 cnpj-card-label">Vol. Médio/Envio</span>
+                    <p id="cnpjAvgVolPerShipment" class="text-sm font-extrabold text-slate-100 mt-1 cnpj-card-val">0</p>
+                </div>
+                <div class="bg-slate-800/90 backdrop-blur p-3 rounded-lg flex flex-col justify-between border border-slate-700">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 cnpj-card-label">Custo Atual/Kg</span>
+                    <p id="cnpjAvgCostPerKg" class="text-sm font-extrabold text-sky-400 mt-1 cnpj-card-val-brand">R$ 0,00</p>
+                </div>
+                <div class="bg-slate-800/90 backdrop-blur p-3 rounded-lg flex flex-col justify-between border border-slate-700">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 cnpj-card-label">Custo Atual/Vol</span>
+                    <p id="cnpjAvgCostPerVol" class="text-sm font-extrabold text-sky-400 mt-1 cnpj-card-val-brand">R$ 0,00</p>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <div class="bg-slate-800/90 border border-slate-700 rounded-lg p-4">
+                    <h3 class="text-xs font-bold text-brand-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-map-location-dot"></i> Consolidação por Região
+                    </h3>
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-xs text-slate-200">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-slate-400 font-semibold uppercase">
+                                    <th class="py-2 px-2">Região</th>
+                                    <th class="py-2 px-2 text-right">Peso (Kg)</th>
+                                    <th class="py-2 px-2 text-right">Vol.</th>
+                                    <th class="py-2 px-2 text-right">Valor MEI</th>
+                                    <th class="py-2 px-2 text-right">R$/Kg</th>
+                                    <th class="py-2 px-2 text-right">R$/Vol</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cnpjRegionTableBody" class="divide-y divide-slate-700/60 font-medium"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-4 border-t border-slate-800 mt-12 no-print">
+        <div class="max-w-[98%] mx-auto px-4 text-center flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p>Sistema Local de Acompanhamento FOB - Gestão MEI & Cotador CNPJ</p>
+            <p class="text-slate-500">Executado 100% no navegador em JavaScript Puro</p>
+        </div>
+    </footer>
+
+    <!-- Modal Adicionar / Editar Registro -->
+    <div id="modalEntry" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all border border-slate-700 max-h-[90vh] flex flex-col">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center border-b border-slate-800 flex-shrink-0">
+                <h3 id="modalEntryTitle" class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-circle-plus text-brand-500"></i> Adicionar Novo Registro FOB
+                </h3>
+                <button onclick="closeModal('modalEntry')" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="formEntry" onsubmit="handleSaveEntry(event)" class="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+                <input type="hidden" id="entryIndex" value="-1">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Status *</label>
+                        <select id="inputStatus" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                            <option value="">Selecione...</option>
+                            <option value="Pendente">Pendente</option>
+                            <option value="Em Trânsito">Em Trânsito</option>
+                            <option value="Entregue">Entregue</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Modal *</label>
+                        <select id="inputModal" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                            <option value="">Selecione...</option>
+                            <option value="Rodoviário">Rodoviário</option>
+                            <option value="Aéreo">Aéreo</option>
+                            <option value="Express">Express</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Região / Cidade *</label>
+                        <input type="text" id="inputRegion" required placeholder="Ex: Belo Horizonte, MG" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">PEL *</label>
+                        <input type="text" id="inputPel" required placeholder="Ex: PEL01, PEL02" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Operadora</label>
+                        <input type="text" id="inputOperadora" placeholder="Ex: Azul, Correios, Jadlog" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Cod. Rastreio (AZUL / CORREIOS)</label>
+                        <input type="text" id="inputTrackingCode" placeholder="Ex: AA123456789BR" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Data Coleta</label>
+                        <input type="date" id="inputCollectionDate" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Data de Envio *</label>
+                        <input type="date" id="inputShippingDate" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Qntd equipamento por PEL</label>
+                        <input type="number" min="0" id="inputEquipQtyPerPel" placeholder="0" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Peso (Kg) *</label>
+                        <input type="number" step="0.01" min="0" id="inputWeight" required placeholder="0.00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Qntd Vol *</label>
+                        <input type="number" min="0" id="inputVolumes" required placeholder="0" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Valor (R$)</label>
+                        <input type="number" step="0.01" min="0" id="inputValue" placeholder="0.00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modalEntry')" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-xs font-medium text-white bg-brand-600 hover:bg-brand-500 transition shadow-sm">Salvar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Importar Planilha -->
+    <div id="modalImport" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+        <div class="bg-white rounded-xl shadow-2xl max-w-xl w-full overflow-hidden transform transition-all border border-slate-700">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center border-b border-slate-800">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-file-excel text-emerald-500"></i> Importar Planilha (Excel / CSV)
+                </h3>
+                <button onclick="closeModal('modalImport')" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-5">
+                <div id="importStep1" class="space-y-4">
+                    <div class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-6 text-center cursor-pointer transition bg-slate-900" onclick="document.getElementById('fileInput').click()">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+                        <p class="text-xs font-semibold text-slate-300">Clique para selecionar ou arraste o arquivo aqui</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Formatos aceitos: .xlsx, .xls, .csv</p>
+                        <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileSelect(event)">
+                    </div>
+                </div>
+
+                <div id="importStep2" class="hidden space-y-4">
+                    <p class="text-xs text-slate-300 font-medium">
+                        Relacione os campos do sistema com as colunas identificadas na sua planilha:
+                    </p>
+                    <div class="grid grid-cols-2 gap-3 bg-slate-900 p-4 rounded-lg border border-slate-700">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">REGIÃO / CIDADE</label>
+                            <select id="mapRegion" class="w-full bg-slate-800 border border-slate-700 text-xs rounded p-2 focus:ring-brand-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">PEL</label>
+                            <select id="mapPel" class="w-full bg-slate-800 border border-slate-700 text-xs rounded p-2 focus:ring-brand-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">DATA ENVIO</label>
+                            <select id="mapDate" class="w-full bg-slate-800 border border-slate-700 text-xs rounded p-2 focus:ring-brand-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">PESO (Kg)</label>
+                            <select id="mapWeight" class="w-full bg-slate-800 border border-slate-700 text-xs rounded p-2 focus:ring-brand-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">QNTD VOL</label>
+                            <select id="mapVolumes" class="w-full bg-slate-800 border border-slate-700 text-xs rounded p-2 focus:ring-brand-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 mb-1">VALOR (R$)</label>
+                            <select id="mapValue" class="w-full bg-slate-800 border border-slate-700 text-xs rounded p-2 focus:ring-brand-500"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-700 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modalImport')" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition">Cancelar</button>
+                    <button id="btnProcessImport" type="button" onclick="executeImport()" class="hidden px-4 py-2 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition shadow-sm">
+                        Confirmar e Importar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificações Toast -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 border border-slate-700 max-w-md">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage" class="text-xs font-medium">Notificação</span>
+    </div>
+
+    <!-- Scripts da Aplicação -->
+    <script>
+        if (typeof ChartDataLabels !== 'undefined') {
+            Chart.register(ChartDataLabels);
+        }
+
+        const STORAGE_KEY = 'fob_management_data_v1';
+
+        let fobData = [];
+        let filteredData = [];
+
+        let selectedRegions = [];
+        let selectedPels = [];
+        let selectedTableRegions = [];
+        let selectedTablePels = [];
+
+        let currentPage = 1;
+        const pageSize = 50;
+
+        let rawSheetData = [];
+        let sheetHeaders = [];
+
+        let chartPaidByRegionObj = null;
+        let chartWeightByRegionObj = null;
+        let chartVolumesByRegionObj = null;
+        let chartEvolutionObj = null;
+
+        let currentEvolutionMetric = 'weight';
+
+        const DEMO_DATA = [
+            { id: 1, status: 'Entregue', modal: 'Rodoviário', region: 'Belo Horizonte', pel: 'PEL01', operadora: 'Azul Cargo', trackingCode: 'BH123456', collectionDate: '2026-09-27', shippingDate: '2026-09-28', date: '2026-09-28', equipQtyPerPel: 10, weight: 850, volumes: 120, value: 1500.00 },
+            { id: 2, status: 'Em Trânsito', modal: 'Express', region: 'Uberlândia', pel: 'PEL02', operadora: 'Jadlog', trackingCode: 'UB987654', collectionDate: '2026-09-27', shippingDate: '2026-09-28', date: '2026-09-28', equipQtyPerPel: 5, weight: 430, volumes: 65, value: 900.00 },
+            { id: 3, status: 'Entregue', modal: 'Rodoviário', region: 'Contagem', pel: 'PEL01', operadora: 'Correios', trackingCode: 'CT456789', collectionDate: '2026-09-26', shippingDate: '2026-09-27', date: '2026-09-27', equipQtyPerPel: 12, weight: 1200, volumes: 180, value: 2100.00 },
+            { id: 4, status: 'Pendente', modal: 'Aéreo', region: 'Juiz de Fora', pel: 'PEL03', operadora: 'Azul Cargo', trackingCode: 'JF112233', collectionDate: '2026-09-25', shippingDate: '2026-09-26', date: '2026-09-26', equipQtyPerPel: 8, weight: 950, volumes: 140, value: 1750.00 },
+            { id: 5, status: 'Entregue', modal: 'Rodoviário', region: 'Montes Claros', pel: 'PEL02', operadora: 'Jadlog', trackingCode: 'MC445566', collectionDate: '2026-09-24', shippingDate: '2026-09-25', date: '2026-09-25', equipQtyPerPel: 6, weight: 610, volumes: 90, value: 1300.00 },
+            { id: 6, status: 'Em Trânsito', modal: 'Express', region: 'Betim', pel: 'PEL04', operadora: 'Correios', trackingCode: 'BT778899', collectionDate: '2026-09-23', shippingDate: '2026-09-24', date: '2026-09-24', equipQtyPerPel: 15, weight: 1550, volumes: 210, value: 2800.00 },
+            { id: 7, status: 'Entregue', modal: 'Rodoviário', region: 'Pouso Alegre', pel: 'PEL03', operadora: 'Azul Cargo', trackingCode: 'PA990011', collectionDate: '2026-09-22', shippingDate: '2026-09-23', date: '2026-09-23', equipQtyPerPel: 7, weight: 720, volumes: 110, value: 1250.00 }
+        ];
+
+        window.onload = function() {
+            loadInitialData();
+            populateFilterDropdowns();
+            applyFilters();
+            
+            document.addEventListener('click', function(e) {
+                const dropdowns = ['dropdownRegionMenu', 'dropdownPelMenu', 'dropdownTableRegionMenu', 'dropdownTablePelMenu'];
+                dropdowns.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && !el.classList.contains('hidden') && !el.parentElement.contains(e.target)) {
+                        el.classList.add('hidden');
+                    }
+                });
+            });
+        };
+
+        function loadInitialData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    fobData = JSON.parse(stored);
+                } catch (e) {
+                    fobData = [...DEMO_DATA];
+                }
+            } else {
+                fobData = [...DEMO_DATA];
+                saveToLocalStorage();
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(fobData));
+        }
+
+        function formatCurrency(val) {
+            const num = parseFloat(val) || 0;
+            return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function formatNumber(val, decimals = 0) {
+            const num = parseFloat(val) || 0;
+            return num.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        }
+
+        function formatDateBR(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        function safeDivide(numerator, denominator) {
+            const num = parseFloat(numerator) || 0;
+            const den = parseFloat(denominator) || 0;
+            if (den === 0) return 0;
+            return num / den;
+        }
+
+        function toggleDropdown(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('hidden');
+        }
+
+        function filterDropdownList(inputId, listId) {
+            const search = document.getElementById(inputId).value.toLowerCase();
+            const container = document.getElementById(listId);
+            const items = container.querySelectorAll('.dropdown-item-row');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        }
+
+        function populateFilterDropdowns() {
+            const regions = [...new Set(fobData.map(item => (item.region || '').trim()))].filter(Boolean).sort();
+            const pels = [...new Set(fobData.map(item => (item.pel || '').trim().toUpperCase()))].filter(Boolean).sort();
+
+            buildMultiSelect('listRegion', regions, selectedRegions, 'selectedRegions', 'labelRegion', 'Todas as Regiões');
+            buildMultiSelect('listPel', pels, selectedPels, 'selectedPels', 'labelPel', 'Todos os PELs');
+
+            buildMultiSelect('listTableRegion', regions, selectedTableRegions, 'selectedTableRegions', 'labelTableRegion', 'Região (Todas)');
+            buildMultiSelect('listTablePel', pels, selectedTablePels, 'selectedTablePels', 'labelTablePel', 'PEL (Todos)');
+        }
+
+        function buildMultiSelect(listId, items, targetArray, arrayNameStr, labelId, defaultText) {
+            const container = document.getElementById(listId);
+            container.innerHTML = '';
+            
+            items.forEach(val => {
+                const checked = targetArray.includes(val) ? 'checked' : '';
+                const row = document.createElement('label');
+                row.className = 'dropdown-item-row flex items-center gap-2 px-2 py-1 hover:bg-slate-700 text-xs text-slate-200 rounded cursor-pointer';
+                row.innerHTML = `<input type="checkbox" value="${val}" ${checked} onchange="handleMultiSelectChange('${arrayNameStr}', '${labelId}', '${defaultText}')" class="rounded bg-slate-900 border-slate-600 text-brand-600 focus:ring-0"> <span class="truncate">${val}</span>`;
+                container.appendChild(row);
+            });
+        }
+
+        function handleMultiSelectChange(arrayNameStr, labelId, defaultText) {
+            const containerId = labelId === 'labelRegion' ? 'listRegion' : 
+                                labelId === 'labelPel' ? 'listPel' : 
+                                labelId === 'labelTableRegion' ? 'listTableRegion' : 'listTablePel';
+                                
+            const checkboxes = document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`);
+            const selected = Array.from(checkboxes).map(cb => cb.value);
+
+            if (arrayNameStr === 'selectedRegions') selectedRegions = selected;
+            if (arrayNameStr === 'selectedPels') selectedPels = selected;
+            if (arrayNameStr === 'selectedTableRegions') selectedTableRegions = selected;
+            if (arrayNameStr === 'selectedTablePels') selectedTablePels = selected;
+
+            const labelEl = document.getElementById(labelId);
+            if (selected.length === 0) {
+                labelEl.innerText = defaultText;
+            } else if (selected.length === 1) {
+                labelEl.innerText = selected[0];
+            } else {
+                labelEl.innerText = `${selected.length} selecionados`;
+            }
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            currentPage = 1;
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+            const searchText = document.getElementById('filterSearch').value.toLowerCase();
+
+            filteredData = fobData.filter(item => {
+                const matchesReg = selectedRegions.length === 0 || selectedRegions.includes(item.region);
+                const matchesPel = selectedPels.length === 0 || selectedPels.includes((item.pel || '').toUpperCase());
+
+                const matchesTableReg = selectedTableRegions.length === 0 || selectedTableRegions.includes(item.region);
+                const matchesTablePel = selectedTablePels.length === 0 || selectedTablePels.includes((item.pel || '').toUpperCase());
+
+                let matchesDate = true;
+                if (startDate && item.date < startDate) matchesDate = false;
+                if (endDate && item.date > endDate) matchesDate = false;
+
+                let matchesSearch = true;
+                if (searchText) {
+                    const searchPool = `${item.region} ${item.pel} ${item.status || ''} ${item.modal || ''} ${item.operadora || ''} ${item.trackingCode || ''} ${formatDateBR(item.date)}`.toLowerCase();
+                    matchesSearch = searchPool.includes(searchText);
+                }
+
+                return matchesReg && matchesPel && matchesTableReg && matchesTablePel && matchesDate && matchesSearch;
+            });
+
+            updateUI();
+        }
+
+        function clearFilters() {
+            selectedRegions = [];
+            selectedPels = [];
+            selectedTableRegions = [];
+            selectedTablePels = [];
+
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            document.getElementById('filterSearch').value = '';
+
+            populateFilterDropdowns();
+            
+            document.getElementById('labelRegion').innerText = 'Todas as Regiões';
+            document.getElementById('labelPel').innerText = 'Todos os PELs';
+            document.getElementById('labelTableRegion').innerText = 'Região (Todas)';
+            document.getElementById('labelTablePel').innerText = 'PEL (Todos)';
+
+            applyFilters();
+            showToast('Filtros limpos com sucesso.', 'info');
+        }
+
+        function updateUI() {
+            updateDashboardKPIs();
+            renderTable();
+            renderCharts();
+            renderCNPJQuotationSection();
+        }
+
+        function updateDashboardKPIs() {
+            const totalPaid = filteredData.reduce((acc, item) => acc + (parseFloat(item.value) || 0), 0);
+            const totalWeight = filteredData.reduce((acc, item) => acc + (parseFloat(item.weight) || 0), 0);
+            const totalVolumes = filteredData.reduce((acc, item) => acc + (parseInt(item.volumes) || 0), 0);
+            const totalDeliveries = filteredData.length;
+
+            const costPerVol = safeDivide(totalPaid, totalVolumes);
+            const costPerKg = safeDivide(totalPaid, totalWeight);
+
+            document.getElementById('kpiTotalPaid').innerText = formatCurrency(totalPaid);
+            document.getElementById('kpiTotalWeight').innerText = `${formatNumber(totalWeight, 1)} Kg`;
+            document.getElementById('kpiTotalVolumes').innerText = formatNumber(totalVolumes, 0);
+            document.getElementById('kpiTotalDeliveries').innerText = formatNumber(totalDeliveries, 0);
+            document.getElementById('kpiCostPerVol').innerText = formatCurrency(costPerVol);
+            document.getElementById('kpiCostPerKg').innerText = formatCurrency(costPerKg);
+
+            document.getElementById('recordCountBadge').innerText = `${filteredData.length} de ${fobData.length} registros`;
+        }
+
+        function changePage(delta) {
+            const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+            currentPage += delta;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('dataTableBody');
+            const emptyMsg = document.getElementById('emptyTableMessage');
+            const paginationControls = document.getElementById('paginationControls');
+            
+            document.getElementById('tableCount').innerText = filteredData.length;
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '';
+                emptyMsg.classList.remove('hidden');
+                paginationControls.classList.add('hidden');
+                return;
+            }
+            emptyMsg.classList.add('hidden');
+            paginationControls.classList.remove('hidden');
+
+            const sorted = [...filteredData].sort((a, b) => new Date(b.date || b.shippingDate) - new Date(a.date || a.shippingDate));
+
+            const totalPages = Math.ceil(sorted.length / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, sorted.length);
+            const pageData = sorted.slice(startIndex, endIndex);
+
+            document.getElementById('paginationInfo').innerText = `Mostrando ${startIndex + 1} até ${endIndex} de ${sorted.length} registros`;
+            document.getElementById('pageIndicator').innerText = `Página ${currentPage} de ${totalPages}`;
+            document.getElementById('btnPrevPage').disabled = currentPage === 1;
+            document.getElementById('btnNextPage').disabled = currentPage === totalPages;
+
+            tbody.innerHTML = pageData.map(item => {
+                const costKg = safeDivide(item.value, item.weight);
+                const originalIndex = fobData.findIndex(x => x.id === item.id);
+
+                let statusBadgeClass = 'bg-slate-700 text-slate-200';
+                if (item.status === 'Entregue') statusBadgeClass = 'bg-emerald-900/60 text-emerald-300 border border-emerald-700/50';
+                else if (item.status === 'Em Trânsito') statusBadgeClass = 'bg-sky-900/60 text-sky-300 border border-sky-700/50';
+                else if (item.status === 'Pendente') statusBadgeClass = 'bg-amber-900/60 text-amber-300 border border-amber-700/50';
+                else if (item.status === 'Cancelado') statusBadgeClass = 'bg-rose-900/60 text-rose-300 border border-rose-700/50';
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-3"><span class="px-2 py-0.5 text-[10px] rounded-full font-bold ${statusBadgeClass}">${item.status || '-'}</span></td>
+                        <td class="p-3 text-slate-300">${item.modal || '-'}</td>
+                        <td class="p-3"><span class="font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-800">${item.region || '-'}</span></td>
+                        <td class="p-3"><span class="font-bold text-white">${(item.pel || '').toUpperCase()}</span></td>
+                        <td class="p-3 text-slate-300">${item.operadora || '-'}</td>
+                        <td class="p-3 font-mono text-slate-400 text-[11px]">${item.trackingCode || '-'}</td>
+                        <td class="p-3 text-slate-400">${formatDateBR(item.collectionDate)}</td>
+                        <td class="p-3 text-slate-300">${formatDateBR(item.shippingDate || item.date)}</td>
+                        <td class="p-3 text-right font-semibold">${formatNumber(item.equipQtyPerPel, 0)}</td>
+                        <td class="p-3 text-right font-semibold">${formatNumber(item.weight, 1)} Kg</td>
+                        <td class="p-3 text-right font-semibold">${formatNumber(item.volumes, 0)}</td>
+                        <td class="p-3 text-right font-bold text-emerald-400">${item.value ? formatCurrency(item.value) : '-'}</td>
+                        <td class="p-3 text-right text-slate-400">${item.value ? formatCurrency(costKg) : '-'}</td>
+                        <td class="p-3 text-center no-print">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="editEntry(${originalIndex})" title="Editar" class="p-1.5 text-slate-400 hover:text-brand-600 transition rounded hover:bg-slate-100">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteEntry(${originalIndex})" title="Excluir" class="p-1.5 text-slate-400 hover:text-rose-600 transition rounded hover:bg-slate-100">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderCharts() {
+            const textColor = '#f8fafc';
+            const borderColor = '#1e293b';
+
+            const regionMap = {};
+            filteredData.forEach(item => {
+                const reg = item.region;
+                if (!regionMap[reg]) {
+                    regionMap[reg] = { paid: 0, weight: 0, volumes: 0, count: 0 };
+                }
+                regionMap[reg].paid += (parseFloat(item.value) || 0);
+                regionMap[reg].weight += (parseFloat(item.weight) || 0);
+                regionMap[reg].volumes += (parseInt(item.volumes) || 0);
+                regionMap[reg].count += 1;
+            });
+
+            const regions = Object.keys(regionMap).sort();
+            const paidArray = regions.map(r => regionMap[r].paid);
+            const weightArray = regions.map(r => regionMap[r].weight);
+            const volumesArray = regions.map(r => regionMap[r].volumes);
+
+            const bgColors = ['#0284c7', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b', '#14b8a6', '#06b6d4', '#f97316'];
+
+            if (chartPaidByRegionObj) chartPaidByRegionObj.destroy();
+            const ctx1 = document.getElementById('chartPaidByRegion').getContext('2d');
+            chartPaidByRegionObj = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: regions,
+                    datasets: [{
+                        data: paidArray,
+                        backgroundColor: bgColors,
+                        borderWidth: 2,
+                        borderColor: borderColor
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Inter', size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.label}: R$ ${ctx.raw.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`
+                            }
+                        },
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value) => value > 0 ? formatCurrency(value) : ''
+                        }
+                    }
+                }
+            });
+
+            if (chartWeightByRegionObj) chartWeightByRegionObj.destroy();
+            const ctx2 = document.getElementById('chartWeightByRegion').getContext('2d');
+            chartWeightByRegionObj = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: regions,
+                    datasets: [{
+                        label: 'Peso Total (Kg)',
+                        data: weightArray,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 25 } },
+                    plugins: {
+                        legend: { display: true, position: 'bottom', labels: { color: textColor, font: { family: 'Inter', size: 11 } } },
+                        datalabels: {
+                            anchor: 'center',
+                            align: 'center',
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value) => `${formatNumber(value, 0)} Kg`
+                        }
+                    },
+                    scales: { 
+                        y: { display: false, beginAtZero: true }, 
+                        x: { display: true, ticks: { color: textColor, font: { family: 'Inter', size: 10 } }, grid: { display: false } } 
+                    }
+                }
+            });
+
+            if (chartVolumesByRegionObj) chartVolumesByRegionObj.destroy();
+            const ctx3 = document.getElementById('chartVolumesByRegion').getContext('2d');
+            chartVolumesByRegionObj = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: regions,
+                    datasets: [{
+                        label: 'Quantidade de Volumes',
+                        data: volumesArray,
+                        backgroundColor: '#6366f1',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 25 } },
+                    plugins: {
+                        legend: { display: true, position: 'bottom', labels: { color: textColor, font: { family: 'Inter', size: 11 } } },
+                        datalabels: {
+                            anchor: 'center',
+                            align: 'center',
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (value) => formatNumber(value, 0)
+                        }
+                    },
+                    scales: { 
+                        y: { display: false, beginAtZero: true }, 
+                        x: { display: true, ticks: { color: textColor, font: { family: 'Inter', size: 10 } }, grid: { display: false } } 
+                    }
+                }
+            });
+
+            renderEvolutionChart();
+        }
+
+        function setEvolutionMetric(metric) {
+            currentEvolutionMetric = metric;
+
+            const btnW = document.getElementById('btnEvolWeight');
+            const btnV = document.getElementById('btnEvolVolumes');
+            const btnP = document.getElementById('btnEvolPaid');
+
+            btnW.className = "px-2 py-1 text-[10px] font-semibold rounded transition " + (metric === 'weight' ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white");
+            btnV.className = "px-2 py-1 text-[10px] font-semibold rounded transition " + (metric === 'volumes' ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white");
+            btnP.className = "px-2 py-1 text-[10px] font-semibold rounded transition " + (metric === 'paid' ? "bg-sky-600 text-white" : "text-slate-400 hover:text-white");
+
+            renderEvolutionChart();
+        }
+
+        function renderEvolutionChart() {
+            const textColor = '#f8fafc';
+            
+            const dateMap = {};
+            filteredData.forEach(item => {
+                const d = item.date;
+                if (!dateMap[d]) {
+                    dateMap[d] = { weight: 0, volumes: 0, paid: 0 };
+                }
+                dateMap[d].weight += (parseFloat(item.weight) || 0);
+                dateMap[d].volumes += (parseInt(item.volumes) || 0);
+                dateMap[d].paid += (parseFloat(item.value) || 0);
+            });
+
+            const sortedDates = Object.keys(dateMap).sort();
+            const formattedDates = sortedDates.map(d => formatDateBR(d));
+
+            let datasetConfig = {};
+
+            if (currentEvolutionMetric === 'weight') {
+                datasetConfig = {
+                    label: 'Peso (Kg)',
+                    data: sortedDates.map(d => dateMap[d].weight),
+                    borderColor: '#10b981',
+                    backgroundColor: '#10b98133',
+                    formatter: (value) => `${formatNumber(value, 0)} Kg`
+                };
+            } else if (currentEvolutionMetric === 'volumes') {
+                datasetConfig = {
+                    label: 'Volumes',
+                    data: sortedDates.map(d => dateMap[d].volumes),
+                    borderColor: '#8b5cf6',
+                    backgroundColor: '#8b5cf633',
+                    formatter: (value) => `${formatNumber(value, 0)} vol`
+                };
+            } else {
+                datasetConfig = {
+                    label: 'Valor Pago (R$)',
+                    data: sortedDates.map(d => dateMap[d].paid),
+                    borderColor: '#0284c7',
+                    backgroundColor: '#0284c733',
+                    formatter: (value) => formatCurrency(value)
+                };
+            }
+
+            if (chartEvolutionObj) chartEvolutionObj.destroy();
+            const ctx4 = document.getElementById('chartEvolution').getContext('2d');
+            chartEvolutionObj = new Chart(ctx4, {
+                type: 'line',
+                data: {
+                    labels: formattedDates,
+                    datasets: [
+                        {
+                            label: datasetConfig.label,
+                            data: datasetConfig.data,
+                            borderColor: datasetConfig.borderColor,
+                            backgroundColor: datasetConfig.backgroundColor,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 30,
+                            bottom: 15,
+                            left: 30,
+                            right: 30
+                        }
+                    },
+                    plugins: { 
+                        legend: { 
+                            display: true, 
+                            position: 'bottom', 
+                            align: 'center',
+                            labels: { color: textColor, font: { family: 'Inter', size: 11 } } 
+                        },
+                        datalabels: {
+                            display: true,
+                            align: 'top',
+                            anchor: 'end',
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 9 },
+                            formatter: datasetConfig.formatter
+                        }
+                    },
+                    scales: { 
+                        y: { display: false, beginAtZero: true, grace: '15%' }, 
+                        x: { display: true, ticks: { color: textColor, font: { family: 'Inter', size: 10 } }, grid: { display: false } } 
+                    }
+                }
+            });
+        }
+
+        function renderCNPJQuotationSection() {
+            const totalPaid = filteredData.reduce((acc, item) => acc + (parseFloat(item.value) || 0), 0);
+            const totalWeight = filteredData.reduce((acc, item) => acc + (parseFloat(item.weight) || 0), 0);
+            const totalVolumes = filteredData.reduce((acc, item) => acc + (parseInt(item.volumes) || 0), 0);
+            const totalDeliveries = filteredData.length;
+
+            const avgWeightPerShipment = safeDivide(totalWeight, totalDeliveries);
+            const avgVolPerShipment = safeDivide(totalVolumes, totalDeliveries);
+            const avgCostPerKg = safeDivide(totalPaid, totalWeight);
+            const avgCostPerVol = safeDivide(totalPaid, totalVolumes);
+
+            document.getElementById('cnpjTotalWeight').innerText = `${formatNumber(totalWeight, 1)} Kg`;
+            document.getElementById('cnpjTotalVolumes').innerText = formatNumber(totalVolumes, 0);
+            document.getElementById('cnpjTotalPaid').innerText = formatCurrency(totalPaid);
+            document.getElementById('cnpjAvgWeightPerShipment').innerText = `${formatNumber(avgWeightPerShipment, 1)} Kg`;
+            document.getElementById('cnpjAvgVolPerShipment').innerText = formatNumber(avgVolPerShipment, 1);
+            document.getElementById('cnpjAvgCostPerKg').innerText = formatCurrency(avgCostPerKg);
+            document.getElementById('cnpjAvgCostPerVol').innerText = formatCurrency(avgCostPerVol);
+
+            const regionGroup = {};
+            filteredData.forEach(item => {
+                const r = item.region;
+                if (!regionGroup[r]) regionGroup[r] = { weight: 0, volumes: 0, paid: 0, count: 0 };
+                regionGroup[r].weight += (parseFloat(item.weight) || 0);
+                regionGroup[r].volumes += (parseInt(item.volumes) || 0);
+                regionGroup[r].paid += (parseFloat(item.value) || 0);
+                regionGroup[r].count += 1;
+            });
+
+            const regionTbody = document.getElementById('cnpjRegionTableBody');
+            regionTbody.innerHTML = Object.keys(regionGroup).sort().map(r => {
+                const g = regionGroup[r];
+                const cKg = safeDivide(g.paid, g.weight);
+                const cVol = safeDivide(g.paid, g.volumes);
+                return `
+                    <tr>
+                        <td class="py-2 px-2 font-bold text-white">${r}</td>
+                        <td class="py-2 px-2 text-right">${formatNumber(g.weight, 1)}</td>
+                        <td class="py-2 px-2 text-right">${formatNumber(g.volumes, 0)}</td>
+                        <td class="py-2 px-2 text-right text-emerald-400 font-semibold">${formatCurrency(g.paid)}</td>
+                        <td class="py-2 px-2 text-right text-brand-300">${formatCurrency(cKg)}</td>
+                        <td class="py-2 px-2 text-right text-brand-300">${formatCurrency(cVol)}</td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="6" class="py-3 text-center text-slate-500">Sem dados</td></tr>';
+        }
+
+        function copyQuotationSummary() {
+            const totalPaid = filteredData.reduce((acc, item) => acc + (parseFloat(item.value) || 0), 0);
+            const totalWeight = filteredData.reduce((acc, item) => acc + (parseFloat(item.weight) || 0), 0);
+            const totalVolumes = filteredData.reduce((acc, item) => acc + (parseInt(item.volumes) || 0), 0);
+            const totalDeliveries = filteredData.length;
+
+            const summaryText = `
+=== RESUMO OPERACIONAL PARA COTAÇÃO DE TRANSPORTE (CONSOLIDADO) ===
+
+• Entregas Analisadas: ${totalDeliveries}
+• Peso Total Expedido: ${formatNumber(totalWeight, 1)} Kg
+• Quantidade Total de Volumes: ${formatNumber(totalVolumes, 0)}
+• Custo Atual Total (MEI): ${formatCurrency(totalPaid)}
+
+• Média de Peso por Envio: ${formatNumber(safeDivide(totalWeight, totalDeliveries), 1)} Kg
+• Média de Volumes por Envio: ${formatNumber(safeDivide(totalVolumes, totalDeliveries), 1)} vol
+• Custo Atual Médio p/ Kg: ${formatCurrency(safeDivide(totalPaid, totalWeight))}
+• Custo Atual Médio p/ Volume: ${formatCurrency(safeDivide(totalPaid, totalVolumes))}
+
+Solicitamos proposta comercial considerando o perfil de volumetria e carga acima.
+`.trim();
+
+            const textArea = document.createElement('textarea');
+            textArea.value = summaryText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Resumo copiado para a área de transferência!', 'success');
+            } catch (err) {
+                showToast('Falha ao copiar resumo.', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            if (modalId === 'modalEntry') {
+                document.getElementById('formEntry').reset();
+                document.getElementById('entryIndex').value = '-1';
+                document.getElementById('modalEntryTitle').innerHTML = '<i class="fa-solid fa-circle-plus text-brand-500"></i> Adicionar Novo Registro FOB';
+            }
+        }
+
+        function handleSaveEntry(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('entryIndex').value);
+            
+            const shippingDateVal = document.getElementById('inputShippingDate').value;
+            const normalizedDate = normalizeDateToISO(shippingDateVal);
+
+            const newRecord = {
+                id: index >= 0 ? fobData[index].id : Date.now(),
+                status: document.getElementById('inputStatus').value,
+                modal: document.getElementById('inputModal').value,
+                region: document.getElementById('inputRegion').value.trim(),
+                pel: document.getElementById('inputPel').value.trim().toUpperCase(),
+                operadora: document.getElementById('inputOperadora').value.trim(),
+                trackingCode: document.getElementById('inputTrackingCode').value.trim(),
+                collectionDate: document.getElementById('inputCollectionDate').value,
+                shippingDate: shippingDateVal,
+                date: normalizedDate,
+                equipQtyPerPel: parseInt(document.getElementById('inputEquipQtyPerPel').value) || 0,
+                weight: parseFloat(document.getElementById('inputWeight').value) || 0,
+                volumes: parseInt(document.getElementById('inputVolumes').value) || 0,
+                value: parseFloat(document.getElementById('inputValue').value) || 0
+            };
+
+            if (index >= 0) {
+                fobData[index] = newRecord;
+                showToast('Registro atualizado com sucesso!', 'success');
+            } else {
+                fobData.push(newRecord);
+                showToast('Novo registro adicionado com sucesso!', 'success');
+            }
+
+            saveToLocalStorage();
+            populateFilterDropdowns();
+            applyFilters();
+            closeModal('modalEntry');
+        }
+
+        function editEntry(originalIndex) {
+            const item = fobData[originalIndex];
+            if (!item) return;
+
+            document.getElementById('entryIndex').value = originalIndex;
+            document.getElementById('inputStatus').value = item.status || '';
+            document.getElementById('inputModal').value = item.modal || '';
+            document.getElementById('inputRegion').value = item.region || '';
+            document.getElementById('inputPel').value = item.pel || '';
+            document.getElementById('inputOperadora').value = item.operadora || '';
+            document.getElementById('inputTrackingCode').value = item.trackingCode || '';
+            document.getElementById('inputCollectionDate').value = item.collectionDate || '';
+            document.getElementById('inputShippingDate').value = item.shippingDate || item.date || '';
+            document.getElementById('inputEquipQtyPerPel').value = item.equipQtyPerPel || 0;
+            document.getElementById('inputWeight').value = item.weight || 0;
+            document.getElementById('inputVolumes').value = item.volumes || 0;
+            document.getElementById('inputValue').value = item.value !== undefined && item.value !== null ? item.value : '';
+
+            document.getElementById('modalEntryTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-brand-500"></i> Editar Registro FOB';
+            openModal('modalEntry');
+        }
+
+        function deleteEntry(originalIndex) {
+            if (confirm('Tem certeza que deseja excluir esta expedição?')) {
+                fobData.splice(originalIndex, 1);
+                saveToLocalStorage();
+                populateFilterDropdowns();
+                applyFilters();
+                showToast('Registro excluído!', 'info');
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                    const firstSheet = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheet];
+                    
+                    rawSheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: true });
+
+                    if (!rawSheetData || rawSheetData.length < 2) {
+                        alert('Arquivo sem registros suficientes.');
+                        return;
+                    }
+
+                    sheetHeaders = rawSheetData[0].map(h => String(h || '').trim());
+                    setupColumnMappingOptions();
+
+                    document.getElementById('importStep1').classList.add('hidden');
+                    document.getElementById('importStep2').classList.remove('hidden');
+                    document.getElementById('btnProcessImport').classList.remove('hidden');
+
+                } catch (err) {
+                    alert('Erro ao ler o arquivo Excel/CSV: ' + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function setupColumnMappingOptions() {
+            const selects = ['mapRegion', 'mapPel', 'mapDate', 'mapWeight', 'mapVolumes', 'mapValue'];
+            
+            selects.forEach(id => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = '<option value="">-- Selecionar Coluna --</option>';
+                sheetHeaders.forEach((h, idx) => {
+                    sel.innerHTML += `<option value="${idx}">${h}</option>`;
+                });
+            });
+
+            sheetHeaders.forEach((h, idx) => {
+                const norm = h.toUpperCase();
+                if (norm.includes('REGI') || norm.includes('UF') || norm.includes('CIDADE') || norm.includes('ESTADO')) document.getElementById('mapRegion').value = idx;
+                if (norm.includes('PEL')) document.getElementById('mapPel').value = idx;
+                if (norm.includes('DATA') || norm.includes('ENVIO')) document.getElementById('mapDate').value = idx;
+                if (norm.includes('PESO') || norm.includes('KG')) document.getElementById('mapWeight').value = idx;
+                if (norm.includes('VOL') || norm.includes('QNTD') || norm.includes('QTD')) document.getElementById('mapVolumes').value = idx;
+                if (norm.includes('VALOR') || norm.includes('R$') || norm.includes('PREÇO') || norm.includes('CUSTO')) document.getElementById('mapValue').value = idx;
+            });
+        }
+
+        function executeImport() {
+            const mapR = document.getElementById('mapRegion').value;
+            const mapP = document.getElementById('mapPel').value;
+            const mapD = document.getElementById('mapDate').value;
+            const mapW = document.getElementById('mapWeight').value;
+            const mapV = document.getElementById('mapVolumes').value;
+            const mapVal = document.getElementById('mapValue').value;
+
+            if (mapR === '' || mapP === '' || mapD === '' || mapW === '' || mapV === '') {
+                alert('Por favor, faça o relacionamento das colunas obrigatórias.');
+                return;
+            }
+
+            fobData = [];
+
+            let importedCount = 0;
+            for (let i = 1; i < rawSheetData.length; i++) {
+                const row = rawSheetData[i];
+                if (!row || row.length === 0) continue;
+
+                const reg = String(row[mapR] || '').trim();
+                const pel = String(row[mapP] || '').trim();
+                let dateStr = normalizeDateToISO(row[mapD]);
+                
+                let weight = parseImportNumber(row[mapW]);
+                let volumes = parseInt(parseImportNumber(row[mapV])) || 0;
+                let value = mapVal !== '' ? parseImportNumber(row[mapVal]) : 0;
+
+                if (reg && pel) {
+                    fobData.push({
+                        id: Date.now() + Math.random(),
+                        status: 'Entregue',
+                        modal: 'Rodoviário',
+                        region: reg,
+                        pel: pel.toUpperCase(),
+                        operadora: '',
+                        trackingCode: '',
+                        collectionDate: dateStr,
+                        shippingDate: dateStr,
+                        date: dateStr,
+                        equipQtyPerPel: 0,
+                        weight: weight,
+                        volumes: volumes,
+                        value: value
+                    });
+                    importedCount++;
+                }
+            }
+
+            saveToLocalStorage();
+            populateFilterDropdowns();
+            applyFilters();
+            closeModal('modalImport');
+
+            document.getElementById('importStep1').classList.remove('hidden');
+            document.getElementById('importStep2').classList.add('hidden');
+            document.getElementById('btnProcessImport').classList.add('hidden');
+            document.getElementById('fileInput').value = '';
+
+            showToast(`${importedCount} registros importados! Os dados anteriores foram sobrescritos.`, 'success');
+        }
+
+        function parseImportNumber(val) {
+            if (val === undefined || val === null || val === '') return 0;
+            let str = String(val).replace('R$', '').replace(/\s/g, '').trim();
+            if (str.includes(',') && str.includes('.')) {
+                str = str.replace(/\./g, '').replace(',', '.');
+            } else if (str.includes(',')) {
+                str = str.replace(',', '.');
+            }
+            return parseFloat(str) || 0;
+        }
+
+        function normalizeDateToISO(val) {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+
+            if (val === undefined || val === null || val === '') {
+                return `${currentYear}-${currentMonth}-${String(now.getDate()).padStart(2, '0')}`;
+            }
+
+            let strVal = String(val).trim();
+            if (/^\d{1,2}$/.test(strVal)) {
+                let dayNum = parseInt(strVal, 10);
+                if (dayNum >= 1 && dayNum <= 31) {
+                    let formattedDay = String(dayNum).padStart(2, '0');
+                    return `${currentYear}-${currentMonth}-${formattedDay}`;
+                }
+            }
+
+            if (val instanceof Date) {
+                if (isNaN(val.getTime())) {
+                    return `${currentYear}-${currentMonth}-${String(now.getDate()).padStart(2, '0')}`;
+                }
+                const year = val.getFullYear();
+                const month = String(val.getMonth() + 1).padStart(2, '0');
+                const day = String(val.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            if (typeof val === 'number') {
+                const parsedDate = XLSX.SSF.parse_date_code(val);
+                if (parsedDate) {
+                    const year = parsedDate.y;
+                    const month = String(parsedDate.m).padStart(2, '0');
+                    const day = String(parsedDate.d).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                }
+            }
+
+            let str = String(val).trim();
+
+            if (!isNaN(str) && str !== '') {
+                const num = parseFloat(str);
+                const parsedDate = XLSX.SSF.parse_date_code(num);
+                if (parsedDate) {
+                    const year = parsedDate.y;
+                    const month = String(parsedDate.m).padStart(2, '0');
+                    const day = String(parsedDate.d).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                }
+            }
+
+            if (str.includes('T')) str = str.split('T')[0];
+            if (str.includes(' ')) str = str.split(' ')[0];
+
+            const parts = str.split(/[\/\-]/);
+            if (parts.length === 3) {
+                let p1 = parseInt(parts[0], 10);
+                let p2 = parseInt(parts[1], 10);
+                let p3 = parseInt(parts[2], 10);
+
+                if (parts[0].length === 4) {
+                    const y = parts[0];
+                    const m = String(p2).padStart(2, '0');
+                    const d = String(p3).padStart(2, '0');
+                    return `${y}-${m}-${d}`;
+                }
+
+                let year = p3;
+                if (parts[2].length === 2) {
+                    year = 2000 + p3;
+                }
+
+                let day, month;
+                if (p1 > 12) {
+                    day = p1;
+                    month = p2;
+                } else if (p2 > 12) {
+                    day = p2;
+                    month = p1;
+                } else {
+                    day = p1;
+                    month = p2;
+                }
+
+                const yStr = String(year);
+                const mStr = String(month).padStart(2, '0');
+                const dStr = String(day).padStart(2, '0');
+                return `${yStr}-${mStr}-${dStr}`;
+            }
+
+            return `${currentYear}-${currentMonth}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        function exportToExcel() {
+            if (filteredData.length === 0) {
+                alert('Nenhum dado disponível para exportação.');
+                return;
+            }
+
+            const exportRows = filteredData.map(item => ({
+                'STATUS': item.status || '',
+                'MODAL': item.modal || '',
+                'REGIÃO': item.region || '',
+                'PEL': item.pel || '',
+                'OPERADORA': item.operadora || '',
+                'CÓD. RASTREIO': item.trackingCode || '',
+                'DATA COLETA': formatDateBR(item.collectionDate),
+                'DATA ENVIO': formatDateBR(item.shippingDate || item.date),
+                'QNTD EQUIP/PEL': item.equipQtyPerPel || 0,
+                'PESO (Kg)': item.weight,
+                'QNTD VOL': item.volumes,
+                'VALOR (R$)': item.value || 0,
+                'CUSTO / KG (R$)': item.value ? safeDivide(item.value, item.weight) : 0
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportRows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Acompanhamento_FOB');
+            XLSX.writeFile(workbook, `Acompanhamento_FOB_${new Date().toISOString().split('T')[0]}.xlsx`);
+            
+            showToast('Planilha Excel gerada com sucesso!', 'success');
+        }
+
+        function exportReportPrint() {
+            window.print();
+        }
+
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+
+            if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+            } else if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-xmark text-rose-400';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-info text-sky-400';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+<script type="module" src="alteracoes.js"></script>
+</body>
+</html>
